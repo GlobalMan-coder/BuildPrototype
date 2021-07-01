@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class GridManager : MonoBehaviour
 {
@@ -52,11 +53,26 @@ public class GridManager : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             grid.GetXZ(Utils.GetMouseWorldPosition(), out int x, out int z);
-            GridObject go = grid.GetGridObject(x, z);
-            if (go.CanBuild())
+            List<Vector2Int> gridPositionList = testType.GetGridPositionList(new Vector2Int(x, z), BuildingType.Direction.Down);
+
+            bool canBuild = true;
+            foreach(Vector2Int pos in gridPositionList)
+            {
+                if(!grid.GetGridObject(pos.x, pos.y).CanBuild())
+                {
+                    canBuild = false;
+                    break;
+                }
+            }
+
+            
+            if (canBuild)
             {
                 Transform builtTransform = Instantiate(testType.prefab, grid.GetWorldPosition(x, z), Quaternion.identity);
-                go.SetTransform(builtTransform);
+                foreach(Vector2Int pos in gridPositionList)
+                {
+                    grid.GetGridObject(pos.x, pos.y).SetTransform(builtTransform);
+                }
             } 
             else
             {
