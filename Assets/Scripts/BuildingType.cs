@@ -3,21 +3,13 @@ using UnityEngine;
 [CreateAssetMenu()]
 public class BuildingType : ScriptableObject
 {
-    public enum Direction
-    {
-        Down,
-        Left,
-        Up,
-        Right
-    }
-
     public string nameString;
     public Transform prefab;
     public Transform visual;
     public int width;
     public int height;
 
-    public static Direction GetNextDirection(Direction dir) { return (dir == Direction.Right) ? Direction.Right : dir++; }
+    public static Direction GetNextDirection(Direction dir) { return (dir == Direction.Right) ? Direction.Down : ++dir ; }
     public int GetRotationAngle(Direction dir) { return (int)dir * 90; }
     public Vector2Int GetRotationOffset(Direction dir)
     {
@@ -59,4 +51,11 @@ public class BuildingType : ScriptableObject
         }
         return gridPositionList;
     }
+}
+public enum Direction
+{
+    Down,
+    Left,
+    Up,
+    Right
 }

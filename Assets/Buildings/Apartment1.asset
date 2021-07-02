@@ -12,8 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82e5459ec2d62844f92262149faf16d5, type: 3}
   m_Name: Apartment1
   m_EditorClassIdentifier: 
-  nameString: House1
+  nameString: Apartment1
   prefab: {fileID: 770917017460604478, guid: fc85c265edec62c43902a117d04d53cd, type: 3}
-  visual: {fileID: 0}
+  visual: {fileID: 770917017460604478, guid: fc85c265edec62c43902a117d04d53cd, type: 3}
   width: 2
   height: 2

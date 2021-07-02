@@ -25,7 +25,7 @@ class Utils
         tm.transform.position = vector3;
         tm.anchor = TextAnchor.MiddleCenter;
         tm.text = text;
-        iTween.MoveBy(tm.gameObject, iTween.Hash("y", 5, "easeType", "easeOutInExpo"));
+        iTween.MoveBy(tm.gameObject, iTween.Hash("y", 5, "easeType", "easeOutExpo"));
         GameObject.Destroy(tm.gameObject, 1);
     }
 

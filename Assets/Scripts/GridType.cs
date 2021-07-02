@@ -16,6 +16,8 @@ internal class GridType<TGridObject>
     private Vector3 originPosition;
     private TGridObject[,] gridArray;
 
+    public float CellSize { get {return cellSize; } }
+
     public GridType(int width, int height, float cellSize, Vector3 originPosition, Func<GridType<TGridObject>, int, int, TGridObject> createGridObject)
     {
         this.width = width;
@@ -62,7 +64,14 @@ internal class GridType<TGridObject>
             return default;
         }
     }
-
+    
+    internal TGridObject GetGridObject(Vector3 worldPosition)
+    {
+        int x, z;
+        GetXZ(worldPosition, out x, out z);
+        return GetGridObject(x, z);
+    }
+    
     internal void TriggerGridObjectChanged(int x, int z)
     {
         OngridObjectChanged?.Invoke(this, new OnGridObjectChangedEventArgs { x = x, z = z });
@@ -78,4 +87,5 @@ internal class GridType<TGridObject>
     {
         return new Vector3(x, 0, z) * cellSize + originPosition;
     }
+
 }
