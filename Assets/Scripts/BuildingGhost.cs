@@ -1,16 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
+﻿using UnityEngine;
 public class BuildingGhost : MonoBehaviour
 {
     private Transform visual;
-    private BuildingType placedObjectTypeSO;
-
     private void Start()
     {
         RefreshVisual();
-
         GridManager.Instance.OnSelectedChanged += Instance_OnSelectedChanged;
     }
 
@@ -24,7 +18,6 @@ public class BuildingGhost : MonoBehaviour
         Vector3 targetPosition = GridManager.Instance.GetMouseWorldSnappedPosition();
         targetPosition.y = 1f;
         transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * 15f);
-
         transform.rotation = Quaternion.Lerp(transform.rotation, GridManager.Instance.GetPlacedObjectRotation(), Time.deltaTime * 15f);
     }
 
@@ -36,11 +29,11 @@ public class BuildingGhost : MonoBehaviour
             visual = null;
         }
 
-        BuildingType placedObjectTypeSO = GridManager.Instance.GetCurObject();
+        BuildingPrefab curBuilding = GridManager.Instance.GetCurObject();
 
-        if (placedObjectTypeSO != null)
+        if (curBuilding != null)
         {
-            visual = Instantiate(placedObjectTypeSO.visual, Vector3.zero, Quaternion.identity);
+            visual = Instantiate(curBuilding.visual, Vector3.zero, Quaternion.identity);
             visual.parent = transform;
             visual.localPosition = Vector3.zero;
             visual.localEulerAngles = Vector3.zero;
@@ -56,6 +49,5 @@ public class BuildingGhost : MonoBehaviour
             SetLayerRecursive(child.gameObject, layer);
         }
     }
-
 }
 

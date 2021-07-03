@@ -4,8 +4,7 @@ using UnityEngine;
 
 public class GridManager : MonoBehaviour
 {
-    [SerializeField] List<BuildingType> buildingTypes;
-    private BuildingType curBuilding;
+    private BuildingPrefab curBuilding;
     [SerializeField] private Transform Plane;
 
     public static GridManager Instance { get; private set; }
@@ -14,6 +13,16 @@ public class GridManager : MonoBehaviour
 
     public event EventHandler OnSelectedChanged;
     public event EventHandler OnObjectPlaced;
+
+    public BuildingPrefab CurrentBuilding
+    {
+        get { return curBuilding; }
+        set 
+        {
+            curBuilding = value;
+            OnSelectedChanged?.Invoke(this, EventArgs.Empty);
+        }
+    }
     private void Awake()
     {
         if (Instance == null) Instance = this;
@@ -23,8 +32,8 @@ public class GridManager : MonoBehaviour
         Plane.localScale = new Vector3(gridWidth + 2, 10, gridHeight + 2);
         Plane.localPosition = new Vector3(gridWidth * cellSize / 2f, 0, gridHeight * cellSize / 2f);
         grid = new GridType<GridObject>(gridWidth, gridHeight, cellSize, Vector3.zero, (GridType<GridObject> g, int x, int z) => new GridObject(g, x, z));
-        curBuilding = buildingTypes[0];
     }
+
     public class GridObject
     {
         private GridType<GridObject> grid;
@@ -60,6 +69,7 @@ public class GridManager : MonoBehaviour
     }
     private void Update()
     {
+        if (curBuilding == null) return;
         if (Input.GetMouseButtonDown(0))
         {
             grid.GetXZ(Utils.GetMouseWorldPosition(), out int x, out int z);
@@ -91,6 +101,7 @@ public class GridManager : MonoBehaviour
                 {
                     grid.GetGridObject(pos.x, pos.y).SetObject(placedObject);
                 }
+                CurrentBuilding = null;
             } 
             else
             {
@@ -114,12 +125,9 @@ public class GridManager : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.R))
         {
-            direction = BuildingType.GetNextDirection(direction);
+            direction = BuildingPrefab.GetNextDirection(direction);
             Utils.CreateWorldTextPopup("" + direction, Utils.GetMouseWorldPosition());
         }
-        if(Input.GetKeyDown(KeyCode.Alpha1)) { curBuilding = buildingTypes[0]; RefreshSelectedBuilding(); }
-        if(Input.GetKeyDown(KeyCode.Alpha2)) { curBuilding = buildingTypes[1]; RefreshSelectedBuilding(); }
-        if(Input.GetKeyDown(KeyCode.Alpha3)) { curBuilding = buildingTypes[2]; RefreshSelectedBuilding(); }
     }
     public Vector3 GetMouseWorldSnappedPosition()
     {
@@ -149,13 +157,8 @@ public class GridManager : MonoBehaviour
         }
     }
 
-    public BuildingType GetCurObject()
+    public BuildingPrefab GetCurObject()
     {
         return curBuilding;
-    }
-
-    private void RefreshSelectedBuilding()
-    {
-        OnSelectedChanged?.Invoke(this, EventArgs.Empty);
     }
 }

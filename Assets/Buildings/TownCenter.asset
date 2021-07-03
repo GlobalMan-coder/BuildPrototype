@@ -10,10 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 82e5459ec2d62844f92262149faf16d5, type: 3}
-  m_Name: Apartment1
+  m_Name: TownCenter
   m_EditorClassIdentifier: 
-  nameString: Apartment1
-  prefab: {fileID: 770917017460604478, guid: fc85c265edec62c43902a117d04d53cd, type: 3}
-  visual: {fileID: 770917017460604478, guid: fc85c265edec62c43902a117d04d53cd, type: 3}
-  width: 2
-  height: 2
+  nameString: TownCenter
+  prefab: {fileID: 770917017460604478, guid: fde2bb9a48681a8499b2138fb2e7e6a0, type: 3}
+  visual: {fileID: 770917017460604478, guid: 8c782dd2df63136428b4ddd47f13efd4, type: 3}
+  texture: {fileID: 21300000, guid: 2789889c8f24801418972c2a8f2c5919, type: 3}
+  width: 1
+  height: 1
+  buildTime: 10
+  type: 2

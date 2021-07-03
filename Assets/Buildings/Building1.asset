@@ -10,10 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 82e5459ec2d62844f92262149faf16d5, type: 3}
-  m_Name: Apartment2
+  m_Name: Building1
   m_EditorClassIdentifier: 
-  nameString: Apartment2
-  prefab: {fileID: 1885539081636012351, guid: 1d6027e43fb904b46ae3b41d3e03b9db, type: 3}
-  visual: {fileID: 1885539081636012351, guid: 1d6027e43fb904b46ae3b41d3e03b9db, type: 3}
-  width: 3
-  height: 2
+  nameString: Building1
+  prefab: {fileID: 1182801546589325562, guid: b93943cccb5af44418a6444a23d7f54a, type: 3}
+  visual: {fileID: 1182801546589325562, guid: 3e63c51ed609aef46b2098a5cc922202, type: 3}
+  texture: {fileID: 21300000, guid: 203ca26c9d46cf44bb8260b213639077, type: 3}
+  width: 1
+  height: 1
+  buildTime: 3
+  type: 0

@@ -1,13 +1,16 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 [CreateAssetMenu()]
-public class BuildingType : ScriptableObject
+public class BuildingPrefab : ScriptableObject
 {
     public string nameString;
     public Transform prefab;
     public Transform visual;
+    public Sprite texture;
     public int width;
     public int height;
+    public float buildTime;
+    public BuildingType type;
 
     public static Direction GetNextDirection(Direction dir) { return (dir == Direction.Right) ? Direction.Down : ++dir ; }
     public int GetRotationAngle(Direction dir) { return (int)dir * 90; }
@@ -58,4 +61,10 @@ public enum Direction
     Left,
     Up,
     Right
+}
+public enum BuildingType
+{
+    Building,
+    Road,
+    TownCenter
 }
