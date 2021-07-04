@@ -19,16 +19,6 @@ class Utils
         return tm;
     }
 
-    internal static void CreateWorldTextPopup(string text, Vector3 vector3)
-    {
-        TextMesh tm = new GameObject().AddComponent<TextMesh>();
-        tm.transform.position = vector3;
-        tm.anchor = TextAnchor.MiddleCenter;
-        tm.text = text;
-        iTween.MoveBy(tm.gameObject, iTween.Hash("y", 5, "easeType", "easeOutExpo"));
-        GameObject.Destroy(tm.gameObject, 1);
-    }
-
     internal static Vector3 GetMouseWorldPosition()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
