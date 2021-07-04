@@ -241,6 +241,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 02c87d7250ecfe844987385b48bd2d2d, type: 2}
   - {fileID: 11400000, guid: f85aa0f987fd48f4885abc25fe415170, type: 2}
   - {fileID: 11400000, guid: e52b82fdc95781e49a6772af05ddd656, type: 2}
+  - {fileID: 11400000, guid: 6c6237d6c7fac3f4a8328d7fe5b2bb13, type: 2}
   BuildingButtonPanel: {fileID: 1517554048}
   BuildingButtonPrefab: {fileID: 1424594571469255531, guid: bc37bba72aeffa142b114c7856afdbd9, type: 3}
 --- !u!1 &516288913
@@ -303,6 +304,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MessagePan: {fileID: 1493556357}
   MessagePrefab: {fileID: 468337131321721524, guid: a01e4bf47441e0943ae16eeffa0eed1d, type: 3}
+  appearTime: 0.3
+  displayTime: 3
+  SuccessColor: {r: 0.2, g: 0.8, b: 0.3, a: 0.5}
+  NotifyColor: {r: 0.8, g: 0.8, b: 0.3, a: 0.5}
+  AlertColor: {r: 1, g: 0.2, b: 0.2, a: 0.5}
 --- !u!1 &764471126
 GameObject:
   m_ObjectHideFlags: 0
