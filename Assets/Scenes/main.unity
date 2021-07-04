@@ -136,7 +136,6 @@ GameObject:
   - component: {fileID: 50650341}
   - component: {fileID: 50650340}
   - component: {fileID: 50650344}
-  - component: {fileID: 50650345}
   m_Layer: 5
   m_Name: UIManager
   m_TagString: Untagged
@@ -244,20 +243,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: e52b82fdc95781e49a6772af05ddd656, type: 2}
   BuildingButtonPanel: {fileID: 1517554048}
   BuildingButtonPrefab: {fileID: 1424594571469255531, guid: bc37bba72aeffa142b114c7856afdbd9, type: 3}
---- !u!114 &50650345
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 50650339}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: db36431d59c046944a65bb1827c4a3ef, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  MessagePan: {fileID: 1493556357}
-  MessagePrefab: {fileID: 468337131321721524, guid: a01e4bf47441e0943ae16eeffa0eed1d, type: 3}
 --- !u!1 &516288913
 GameObject:
   m_ObjectHideFlags: 0
@@ -268,6 +253,7 @@ GameObject:
   m_Component:
   - component: {fileID: 516288914}
   - component: {fileID: 516288915}
+  - component: {fileID: 516288916}
   m_Layer: 0
   m_Name: GridManager
   m_TagString: Untagged
@@ -303,6 +289,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Plane: {fileID: 1179919708}
+--- !u!114 &516288916
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 516288913}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: db36431d59c046944a65bb1827c4a3ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MessagePan: {fileID: 1493556357}
+  MessagePrefab: {fileID: 468337131321721524, guid: a01e4bf47441e0943ae16eeffa0eed1d, type: 3}
 --- !u!1 &764471126
 GameObject:
   m_ObjectHideFlags: 0

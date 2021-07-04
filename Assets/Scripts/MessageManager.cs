@@ -1,15 +1,17 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using DG.Tweening;
 
 public class MessageManager : MonoBehaviour
 {
     [SerializeField] Transform MessagePan;
     [SerializeField] Transform MessagePrefab;
+    [SerializeField] float appearTime = 0.3f;
+    [SerializeField] float displayTime = 3f;
     public static MessageManager Instance;
     private Queue<Message> Messages = new Queue<Message>();
-    private bool isEmpty = true;
+    private bool exist = false;
     private void Awake()
     {
         if (!Instance)
@@ -17,29 +19,34 @@ public class MessageManager : MonoBehaviour
             Instance = this;
         }
     }
+
     public void AddMessage(string message, Color color)
     {
-        if (isEmpty) isEmpty = true;
-        //Messages.Enqueue(message);
+        Messages.Enqueue(new Message { message = message, color = color });
+        if (!exist)
+        {
+            exist = true;
+            MessageAdding();
+        }
     }
-    IEnumerator MessageAdding()
+    void MessageAdding()
     {
-        if (Messages.Count == 0) yield return null;
-        iTween.MoveBy(MessagePan.gameObject, iTween.Hash("y", "50", "time", "1"));
-        yield return new WaitForSeconds(0.5f);
+        if (Messages.Count == 0)
+        {
+            exist = false;
+            return;
+        }
+        MessagePan.DOMoveY(MessagePan.position.y - 50, appearTime);
         Transform m = Instantiate(MessagePrefab, MessagePan.parent);
         Message message = Messages.Dequeue();
         m.GetComponent<Image>().color = message.color;
         m.GetChild(0).GetComponent<Text>().text = message.message;
-        iTween.ScaleBy(m.gameObject, iTween.Hash("y", "1", "time", "0.5"));
-        yield return new WaitForSeconds(0.5f);
-        
-        m.parent = MessagePan;
-        yield return null;
-    }
-    IEnumerator MessageDeleting()
-    {
-        return null;
+        m.DOScaleY(1, appearTime).OnComplete(() =>
+        {
+            m.parent = MessagePan;
+            MessageAdding();
+            Destroy(m.gameObject, displayTime);
+        });
     }
 
     public struct Message

@@ -93,7 +93,6 @@ public class GridManager : MonoBehaviour
         if (canBuild)
         {
             Vector2Int ro = curBuilding.GetRotationOffset(direction);
-            
             var placedObject = PlacedObject.Create(
                 new Vector3(visual.transform.position.x, 0, visual.transform.position.z)
                 , new Vector2Int(x, z)
