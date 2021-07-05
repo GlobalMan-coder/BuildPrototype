@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 
 public class GridManager : MonoBehaviour
 {
-    private BuildingPrefab curBuilding;
+    private BuildingSO curBuilding;
     [SerializeField] private Transform Plane;
     public static GridManager Instance { get; private set; }
     private GridType<GridObject> grid;
@@ -16,7 +16,7 @@ public class GridManager : MonoBehaviour
     private bool hasTownCenter = false;
 
     private int _prevx, _prevz, _oldx, _oldz;
-    public BuildingPrefab CurrentBuilding
+    public BuildingSO CurrentBuilding
     {
         get { return curBuilding; }
         set 
@@ -62,7 +62,7 @@ public class GridManager : MonoBehaviour
         private GridType<GridObject> grid;
         private int x;
         private int z;
-        private PlacedObject placedObject;
+        public PlacedObject Object { get; private set; }
         public GridObject(object grid, int x, int z)
         {
             this.grid = grid as GridType<GridObject>;
@@ -71,29 +71,19 @@ public class GridManager : MonoBehaviour
         }
         public void SetObject(PlacedObject placedObject)
         {
-            this.placedObject = placedObject;
+            this.Object = placedObject;
             grid.TriggerGridObjectChanged(x, z);
         }
-        public PlacedObject GetObject() { return placedObject; }
-        public bool CanBuild()
-        {
-            return placedObject == null;
-        }
-        public void ClearObject()
-        {
-            placedObject = null;
-        }
-        public override string ToString()
-        { 
-            return x + ", " + z;
-        }
+        public bool CanBuild() { return Object == null; }
+        public void ClearObject() { Object = null; }
+        public override string ToString() { return $"{x}, {z}"; }
     }
     public void Rotate()
     {
         if (visual.Count != 1) return;
         if (!CurrentBuilding) return;
         Vector2Int rotationOffset = curBuilding.GetRotationOffset(direction);
-        direction = BuildingPrefab.GetNextDirection(direction);
+        direction = BuildingSO.GetNextDirection(direction);
         targetPosition = GetMouseWorldSnappedPosition(visual[0].position + new Vector3(1, 0, 1) - new Vector3(rotationOffset.x, 0, rotationOffset.y) * grid.CellSize);
     }
     public void Place()
@@ -137,6 +127,7 @@ public class GridManager : MonoBehaviour
                 }
                 Destroy(t.gameObject);
             }
+            if (curBuilding.type == BuildingType.Road) CheckRoad();
             CurrentBuilding = null;
             visual.Clear();
             direction = Direction.Down;
@@ -195,7 +186,7 @@ public class GridManager : MonoBehaviour
         if (Input.GetMouseButton(1))
         {
             GridObject go = grid.GetGridObject(Utils.GetMouseWorldPosition());
-            PlacedObject obj = go.GetObject();
+            PlacedObject obj = go.Object;
             if (obj != null)
             {
                 List<Vector2Int> gridPosList = obj.GetGridPostionList();
@@ -306,5 +297,49 @@ public class GridManager : MonoBehaviour
                 grid.GetXZ(GetMouseWorldSnappedPosition() + Vector3.one, out _oldx, out _oldz);
             }
         }
+    }
+    private void CheckRoad()
+    {
+        bool changed = true;
+        // linked initialize
+        GridObject go;
+        for(int i = 0; i < grid.Width; i++)
+            for(int j = 0; j < grid.Height; j++)
+            {
+                go = grid.GetGridObject(i, j);
+                if (go != default && go.Object != null && go.Object.IsLinked) go.Object.IsLinked = false;
+            }
+
+        while (changed)
+        {
+            changed = false;
+            for(int i = 0; i < grid.Width; i ++)
+                for(int j = 0; j < grid.Height; j++)
+                {
+                    go = grid.GetGridObject(i, j);
+                    if (go == default || go.Object == null || go.Object.SO.type != BuildingType.Road) continue;
+                    if (!go.Object.IsLinked && CheckPointLink(i, j))
+                    {
+                        go.Object.IsLinked = true;
+                        changed = true;
+                    }
+                }
+        }
+    }
+    public bool CheckPointLink(int x, int z)
+    {
+        var go = grid.GetGridObject(x - 1, z);
+        if (CheckIsRoad(go)) return true;
+        go = grid.GetGridObject(x + 1, z);
+        if (CheckIsRoad(go)) return true;
+        go = grid.GetGridObject(x, z - 1);
+        if (CheckIsRoad(go)) return true;
+        go = grid.GetGridObject(x, z + 1);
+        if (CheckIsRoad(go)) return true;
+        return false;
+    }
+    private bool CheckIsRoad(GridObject go)
+    {
+        return go != default && go.Object != null && (go.Object.SO.type == BuildingType.Road && go.Object.IsLinked || go.Object.SO.type == BuildingType.TownCenter);
     }
 }

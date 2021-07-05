@@ -10,8 +10,8 @@ internal class GridType<TGridObject>
         public int z;
     }
 
-    private int width;
-    private int height;
+    public int Width { get; private set; }
+    public int Height { get; private set; }
     private float cellSize;
     private Vector3 originPosition;
     private TGridObject[,] gridArray;
@@ -20,8 +20,8 @@ internal class GridType<TGridObject>
 
     public GridType(int width, int height, float cellSize, Vector3 originPosition, Func<GridType<TGridObject>, int, int, TGridObject> createGridObject)
     {
-        this.width = width;
-        this.height = height;
+        this.Width = width;
+        this.Height = height;
         this.cellSize = cellSize;
         this.originPosition = originPosition;
 
@@ -56,7 +56,7 @@ internal class GridType<TGridObject>
 
     internal TGridObject GetGridObject(int x, int z)
     {
-        if(x >= 0 && z >= 0 && x < width && z < height)
+        if(x >= 0 && z >= 0 && x < Width && z < Height)
         {
             return gridArray[x, z];
         }else

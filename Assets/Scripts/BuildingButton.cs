@@ -3,12 +3,12 @@ using UnityEngine;
 using UnityEngine.UI;
 public class BuildingButton : MonoBehaviour
 {
-    [SerializeField] List<BuildingPrefab> buildingTypes;
+    [SerializeField] List<BuildingSO> buildingTypes;
     [SerializeField] private Transform BuildingButtonPanel;
     [SerializeField] private Transform BuildingButtonPrefab;
     private void Start()
     {
-        foreach(BuildingPrefab b in buildingTypes)
+        foreach(BuildingSO b in buildingTypes)
         {
             Transform button = Instantiate(BuildingButtonPrefab, BuildingButtonPanel);
             button.GetComponent<Image>().sprite = b.texture;

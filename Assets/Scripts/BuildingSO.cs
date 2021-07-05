@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 [CreateAssetMenu()]
-public class BuildingPrefab : ScriptableObject
+public class BuildingSO : ScriptableObject
 {
     public string nameString;
     public Transform prefab;
