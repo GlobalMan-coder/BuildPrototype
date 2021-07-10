@@ -163,7 +163,6 @@ public class GridManager : MonoBehaviour
     }
     private void BuildingRoad(int originX, int originY, int targetX, int targetY, int width, int height)
     {
-        MessageManager.Instance.AddMessage(originX + "-" + originY + ":" + targetX + "-" + targetY, MessageManager.Type.Notify);
         if (width > 1 && targetX > originX)
         {
             originX = (targetX >= originX + width) ? originX + width - 1 : targetX;
