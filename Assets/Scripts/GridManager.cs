@@ -7,43 +7,39 @@ public class GridManager : MonoBehaviour
 {
     private BuildingSO curBuilding;
     [SerializeField] private Transform Plane;
+    [SerializeField] private BuildingSO Road;
     public static GridManager Instance { get; private set; }
     private GridType<GridObject> grid;
     private Direction direction = Direction.Down;
-    private List<Transform> visual = new List<Transform>();
+    private Transform visual;
     private bool isDragging = false;
     private Vector3 targetPosition;
-    private bool hasTownCenter = false;
-
     private int _prevx, _prevz, _oldx, _oldz;
+    bool builtTown = false;
     public BuildingSO CurrentBuilding
     {
         get { return curBuilding; }
-        set 
+        set
         {
             if (value != null)
             {
-                if (hasTownCenter && value.type == BuildingType.TownCenter)
+                if (builtTown && value.type == BuildingType.TownCenter)
                 {
                     MessageManager.Instance.AddMessage("You have already towncenter.", MessageManager.Type.Alert);
                     return;
                 }
 
-                if (!hasTownCenter && value.type != BuildingType.TownCenter)
+                if (!builtTown && value.type != BuildingType.TownCenter)
                 {
-                    MessageManager.Instance.AddMessage("You have to towncenter first.", MessageManager.Type.Notify);
+                    MessageManager.Instance.AddMessage("You have to towncenter first.", MessageManager.Type.Alert);
+                    return;
                 }
             }
             curBuilding = value;
-            if (visual.Count > 0)
+            if (visual != null)
             {
-                GameObject go;
-                for (int i = visual.Count - 1; i >= 0; i--)
-                {
-                    go = visual[i].gameObject;
-                    visual.RemoveAt(i);
-                    Destroy(go);
-                }
+                Destroy(visual.gameObject);
+                visual = null;
             }
         }
     }
@@ -80,61 +76,135 @@ public class GridManager : MonoBehaviour
     }
     public void Rotate()
     {
-        if (visual.Count != 1) return;
         if (!CurrentBuilding) return;
         Vector2Int rotationOffset = curBuilding.GetRotationOffset(direction);
         direction = BuildingSO.GetNextDirection(direction);
-        targetPosition = GetMouseWorldSnappedPosition(visual[0].position + new Vector3(1, 0, 1) - new Vector3(rotationOffset.x, 0, rotationOffset.y) * grid.CellSize);
+        targetPosition = GetMouseWorldSnappedPosition(visual.position + new Vector3(1, 0, 1) - new Vector3(rotationOffset.x, 0, rotationOffset.y) * grid.CellSize);
     }
     public void Place()
     {
-        if (visual.Count == 0) return;
+        if (visual == null) return;
         bool canBuild = true;
-        foreach (var t in visual)
+        grid.GetXZ(visual.transform.position + Vector3.one, out int x, out int z);
+        List<Vector2Int> gridPositionList = curBuilding.GetGridPositionList(new Vector2Int(x, z) - curBuilding.GetRotationOffset(direction), direction);
+        foreach (Vector2Int pos in gridPositionList)
         {
-            grid.GetXZ(t.transform.position + Vector3.one, out int x, out int z);
-            List<Vector2Int> gridPositionList = curBuilding.GetGridPositionList(new Vector2Int(x, z), direction);
-            foreach (Vector2Int pos in gridPositionList)
+            var o = grid.GetGridObject(pos.x, pos.y);
+            if (o == default || !o.CanBuild())
             {
-                var o = grid.GetGridObject(pos.x, pos.y);
-                if (o == default || !o.CanBuild())
-                {
-                    canBuild = false;
-                    break;
-                }
+                canBuild = false;
+                break;
             }
-
         }
         if (canBuild)
         {
-            foreach (var t in visual)
+            var placedObject = PlacedObject.Create(
+                new Vector3(visual.position.x, 0, visual.position.z)
+                , new Vector2Int(x, z)
+                , direction
+                , curBuilding
+                );
+            foreach (Vector2Int pos in gridPositionList)
             {
-                grid.GetXZ(t.transform.position + Vector3.one, out int x, out int z);
-                List<Vector2Int> gridPositionList = curBuilding.GetGridPositionList(new Vector2Int(x, z), direction);
-                var placedObject = PlacedObject.Create(
-                    new Vector3(t.transform.position.x, 0, t.transform.position.z)
-                    , new Vector2Int(x, z)
-                    , direction
-                    , curBuilding
-                    );
-                foreach (Vector2Int pos in gridPositionList)
-                {
-                    grid.GetGridObject(pos.x, pos.y).SetObject(placedObject);
-                }
-                if (CurrentBuilding.type == BuildingType.TownCenter)
-                {
-                    hasTownCenter = true;
-                }
-                Destroy(t.gameObject);
+                grid.GetGridObject(pos.x, pos.y).SetObject(placedObject);
             }
-            if (curBuilding.type == BuildingType.Road) CheckRoad();
+            if (CurrentBuilding.type == BuildingType.TownCenter)
+            {
+                builtTown = true;
+            }
+            else
+            {
+                FindNearRoad(placedObject);
+            }
+            Destroy(visual.gameObject);
             CurrentBuilding = null;
-            visual.Clear();
+            visual = null;
             direction = Direction.Down;
         }
         else
         {
             MessageManager.Instance.AddMessage("Cannot build there.", MessageManager.Type.Alert);
+        }
+    }
+    private void FindNearRoad(PlacedObject po)
+    {
+        int x = po.origin.x;
+        int z = po.origin.y;
+        int distance = Mathf.Max(grid.Width, grid.Height);
+        int width = (po.Dir == Direction.Down || po.Dir == Direction.Up) ? po.SO.width : po.SO.height;
+        int height = (po.Dir == Direction.Down || po.Dir == Direction.Up) ? po.SO.height: po.SO.width;
+        int targetX = -1;
+        int targetY = -1;
+        GridObject go;
+        bool isFound = false;
+        int _distance = 0;
+        for(int i = 0; i < grid.Width; i++)
+            for(int j = 0; j < grid.Height; j++)
+            {
+                go = grid.GetGridObject(i, j);
+                if(go != default && go.Object != null && (go.Object.SO.type == BuildingType.TownCenter || go.Object.SO.type == BuildingType.Road))
+                {
+                    _distance = Mathf.Max(x, x + width - 1, i) - Mathf.Min(x, x + width - 1, i)
+                        + Mathf.Max(z, z + height - 1, j) - Mathf.Min(z, z + height - 1, j);
+                    if(_distance < distance)
+                    {
+                        distance = _distance;
+                        targetX = i;
+                        targetY = j;
+                        isFound = true;
+                    }
+                }
+            }
+        if(isFound && distance > 1)
+        {
+            Vector2Int offset = po.SO.GetRotationOffset(po.Dir);
+            BuildingRoad(x - offset.x, z - offset.y, targetX, targetY, width, height);
+        }
+    }
+    private void BuildingRoad(int originX, int originY, int targetX, int targetY, int width, int height)
+    {
+        MessageManager.Instance.AddMessage(originX + "-" + originY + ":" + targetX + "-" + targetY, MessageManager.Type.Notify);
+        if (width > 1 && targetX > originX)
+        {
+            originX = (targetX >= originX + width) ? originX + width - 1 : targetX;
+        }
+        if (height > 1 && targetY > originY)
+        {
+            originY = (targetY >= originY + height) ? originY + height - 1 : targetY;
+        }
+
+        int deltax = targetX - originX;
+        int step = (deltax > 0)? 1: -1;
+        GridObject go;
+        for(int i = 0; i < Mathf.Abs(deltax); i++)
+        {
+            go = grid.GetGridObject(originX + i * step, originY);
+            if(go != default && go.Object == null)
+            {
+                var placedObject = PlacedObject.Create(
+                grid.GetWorldPosition(originX + i * step, originY)
+                , new Vector2Int(originX + i * step, originY)
+                , Direction.Down
+                , Road
+                );
+                grid.GetGridObject(originX + i * step, originY).SetObject(placedObject);
+            }
+        }
+        int deltay = targetY - originY;
+        step = (deltay > 0) ? 1 : -1;
+        for(int j = 0; j < Mathf.Abs(deltay); j++)
+        {
+            go = grid.GetGridObject(targetX, originY + j * step);
+            if (go != default && go.Object == null)
+            {
+                var placedObject = PlacedObject.Create(
+                grid.GetWorldPosition(targetX, originY + j * step)
+                , new Vector2Int(targetX, originY + j * step)
+                , Direction.Down
+                , Road
+                );
+                grid.GetGridObject(targetX, originY + j * step).SetObject(placedObject);
+            }
         }
     }
     public void Cancel()
@@ -202,7 +272,7 @@ public class GridManager : MonoBehaviour
     {
         if (isDragging)
         {
-            if (visual.Count == 0)  // Camera move
+            if (visual == null)  // Camera move
             {
                 float x = Input.GetAxis("Mouse X");
                 float y = Input.GetAxis("Mouse Y");
@@ -215,131 +285,40 @@ public class GridManager : MonoBehaviour
                 grid.GetXZ(targetPosition + Vector3.one, out int x, out int z);
                 if (x != _prevx || z != _prevz)
                 {
-                    if (curBuilding.type == BuildingType.Road)
+                    _prevx = x;
+                    _prevz = z;
+                    List<Vector2Int> gridPositionList = curBuilding.GetGridPositionList(new Vector2Int(x, z) -curBuilding.GetRotationOffset(direction), direction);
+                    bool canBuild = true;
+                    foreach (Vector2Int pos in gridPositionList)
                     {
-                        if (visual.Count > 0)
+                        var o = grid.GetGridObject(pos.x, pos.y);
+                        if (o == default || !o.CanBuild())
                         {
-                            GameObject go;
-                            for (int i = visual.Count - 1; i > 0; i--)
-                            {
-                                go = visual[i].gameObject;
-                                visual.RemoveAt(i);
-                                Destroy(go);
-                            }
-                        }
-                        if (Mathf.Abs(x - _oldx) > Mathf.Abs(z - _oldz))
-                        {
-                            int delta = (x > _oldx) ? 1 : -1;
-                            for(int i = 1; i < Mathf.Abs(_oldx - x); i ++)
-                            {
-                                visual.Add(Instantiate(curBuilding.visual, grid.GetWorldPosition(_oldx + i * delta, _oldz), Quaternion.identity));
-                                var o = grid.GetGridObject(visual[i].position);
-                                visual[i].Find("Bottom").GetComponent<MeshRenderer>().material.color = (o == default || !o.CanBuild()) ? Color.red : Color.green;
-                            }
-                        }
-                        else
-                        {
-                            int delta = (z > _oldz) ? 1 : -1;
-                            for (int i = 1; i < Mathf.Abs(_oldz - z); i ++)
-                            {
-                                visual.Add(Instantiate(curBuilding.visual, grid.GetWorldPosition(_oldx, _oldz + i * delta), Quaternion.identity));
-                                var o = grid.GetGridObject(visual[i].position);
-                                visual[i].Find("Bottom").GetComponent<MeshRenderer>().material.color = (o == default || !o.CanBuild()) ? Color.red : Color.green;
-                            }
+                            canBuild = false;
+                            break;
                         }
                     }
-                    else
-                    {
-                        _prevx = x;
-                        _prevz = z;
-                        List<Vector2Int> gridPositionList = curBuilding.GetGridPositionList(new Vector2Int(x, z), direction);
-                        bool canBuild = true;
-                        foreach (Vector2Int pos in gridPositionList)
-                        {
-                            var o = grid.GetGridObject(pos.x, pos.y);
-                            if (o == default || !o.CanBuild())
-                            {
-                                canBuild = false;
-                                break;
-                            }
-                        }
-                        visual[0].Find("Bottom").GetComponent<MeshRenderer>().material.color = (canBuild) ? Color.green : Color.red;
-                    }
+                    visual.Find("Bottom").GetComponent<MeshRenderer>().material.color = (canBuild) ? Color.green : Color.red;
                 }
             }
         }
-        if (visual.Count > 0 && curBuilding.type != BuildingType.Road)
+        if (visual != null && curBuilding.type != BuildingType.Road)
         {
-            visual[0].position = Vector3.Lerp(visual[0].position, targetPosition, Time.deltaTime * 15f);
-            visual[0].rotation = Quaternion.Lerp(visual[0].rotation, GetPlacedObjectRotation(), Time.deltaTime * 15f);
+            visual.position = Vector3.Lerp(visual.position, targetPosition, Time.deltaTime * 15f);
+            visual.rotation = Quaternion.Lerp(visual.rotation, GetPlacedObjectRotation(), Time.deltaTime * 15f);
         }
     }
     private void RefreshVisual()
     {
         if (CurrentBuilding != null)
         {
-            if (visual.Count > 0)
+            if (visual != null)
             {
-                GameObject go;
-                for (int i = visual.Count - 1; i >= 0; i--)
-                {
-                    go = visual[i].gameObject;
-                    visual.RemoveAt(i);
-                    Destroy(go);
-                }
+                Destroy(visual.gameObject);
+                visual = null;
             }
-            visual.Add(Instantiate(curBuilding.visual, GetMouseWorldSnappedPosition(), Quaternion.identity));
-            visual[0].parent = transform;
-            if(curBuilding.type == BuildingType.Road)
-            {
-                var o = grid.GetGridObject(visual[0].position);
-                visual[0].Find("Bottom").GetComponent<MeshRenderer>().material.color = (o == default || !o.CanBuild()) ? Color.red : Color.green;
-                grid.GetXZ(GetMouseWorldSnappedPosition() + Vector3.one, out _oldx, out _oldz);
-            }
+            visual = Instantiate(curBuilding.visual, GetMouseWorldSnappedPosition(), Quaternion.identity);
+            visual.parent = transform;
         }
-    }
-    private void CheckRoad()
-    {
-        bool changed = true;
-        // linked initialize
-        GridObject go;
-        for(int i = 0; i < grid.Width; i++)
-            for(int j = 0; j < grid.Height; j++)
-            {
-                go = grid.GetGridObject(i, j);
-                if (go != default && go.Object != null && go.Object.IsLinked) go.Object.IsLinked = false;
-            }
-
-        while (changed)
-        {
-            changed = false;
-            for(int i = 0; i < grid.Width; i ++)
-                for(int j = 0; j < grid.Height; j++)
-                {
-                    go = grid.GetGridObject(i, j);
-                    if (go == default || go.Object == null || go.Object.SO.type != BuildingType.Road) continue;
-                    if (!go.Object.IsLinked && CheckPointLink(i, j))
-                    {
-                        go.Object.IsLinked = true;
-                        changed = true;
-                    }
-                }
-        }
-    }
-    public bool CheckPointLink(int x, int z)
-    {
-        var go = grid.GetGridObject(x - 1, z);
-        if (CheckIsRoad(go)) return true;
-        go = grid.GetGridObject(x + 1, z);
-        if (CheckIsRoad(go)) return true;
-        go = grid.GetGridObject(x, z - 1);
-        if (CheckIsRoad(go)) return true;
-        go = grid.GetGridObject(x, z + 1);
-        if (CheckIsRoad(go)) return true;
-        return false;
-    }
-    private bool CheckIsRoad(GridObject go)
-    {
-        return go != default && go.Object != null && (go.Object.SO.type == BuildingType.Road && go.Object.IsLinked || go.Object.SO.type == BuildingType.TownCenter);
     }
 }

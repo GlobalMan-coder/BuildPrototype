@@ -15,7 +15,7 @@ MonoBehaviour:
   nameString: Road
   prefab: {fileID: 1182801546589325562, guid: cb133c33a763d5f428c8b3f7519aec97, type: 3}
   visual: {fileID: 1182801546589325562, guid: d049f2a4e419ccb43aab80ffd0e7046a, type: 3}
-  texture: {fileID: 21300000, guid: d6951aa0796334b4e9fb0c9b4f5d169f, type: 3}
+  texture: {fileID: 21300000, guid: 2789889c8f24801418972c2a8f2c5919, type: 3}
   width: 1
   height: 1
   buildTime: 1

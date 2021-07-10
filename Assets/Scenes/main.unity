@@ -241,7 +241,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 02c87d7250ecfe844987385b48bd2d2d, type: 2}
   - {fileID: 11400000, guid: f85aa0f987fd48f4885abc25fe415170, type: 2}
   - {fileID: 11400000, guid: e52b82fdc95781e49a6772af05ddd656, type: 2}
-  - {fileID: 11400000, guid: 6c6237d6c7fac3f4a8328d7fe5b2bb13, type: 2}
   BuildingButtonPanel: {fileID: 1517554048}
   BuildingButtonPrefab: {fileID: 1424594571469255531, guid: bc37bba72aeffa142b114c7856afdbd9, type: 3}
 --- !u!1 &516288913
@@ -290,6 +289,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Plane: {fileID: 1179919708}
+  Road: {fileID: 11400000, guid: 2400783dfede3e6469650ef8edc4f11f, type: 2}
 --- !u!114 &516288916
 MonoBehaviour:
   m_ObjectHideFlags: 0

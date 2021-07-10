@@ -15,6 +15,7 @@ internal class GridType<TGridObject>
     private float cellSize;
     private Vector3 originPosition;
     private TGridObject[,] gridArray;
+    bool showDebug = true;
 
     public float CellSize { get {return cellSize; } }
 
@@ -31,8 +32,6 @@ internal class GridType<TGridObject>
             {
                 gridArray[x, z] = createGridObject(this, x, z);
             }
-
-        bool showDebug = true;
         if (showDebug)
         {
             TextMesh[,] debugTextArray = new TextMesh[width, height];
