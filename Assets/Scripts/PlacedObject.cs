@@ -3,9 +3,20 @@ using UnityEngine;
 using UnityEngine.UI;
 public class PlacedObject : MonoBehaviour
 {
+    private bool isLinked = false;
     public BuildingSO SO { get; private set; }
     public Vector2Int origin { get; private set; }
     public Direction Dir { get; private set; }
+    public bool IsBuilt { get; private set; }
+    public bool IsLinked
+    {
+        get { return isLinked; }
+        set
+        {
+            isLinked = value;
+            IsConstructing = isLinked && !IsBuilt;
+        }
+    }
     public bool IsConstructing { get; private set; }
     public static PlacedObject Create(Vector3 worldPosiontion, Vector2Int origin, Direction direction, BuildingSO placed)
     {
@@ -14,7 +25,10 @@ public class PlacedObject : MonoBehaviour
         po.SO = placed;
         po.origin = origin;
         po.Dir = direction;
-        po.IsConstructing = true;
+        if (po.SO.type == BuildingType.Building)
+            po.CheckLinkLoad();
+        if (po.SO.type == BuildingType.TownCenter)
+            po.IsLinked = true;
         return po;
     }
     private void Update()
@@ -36,5 +50,18 @@ public class PlacedObject : MonoBehaviour
     public void Destroy() 
     {
         Destroy(gameObject);
+    }
+    public void CheckLinkLoad()
+    {
+        var gpl = GetGridPostionList();
+        IsLinked = false;
+        foreach (var gp in gpl)
+        {
+            if (GridManager.Instance.CheckPointLink(gp.x, gp.y))
+            {
+                IsLinked = true;
+                return;
+            }
+        }
     }
 }

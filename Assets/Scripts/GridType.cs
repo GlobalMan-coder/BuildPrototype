@@ -15,7 +15,7 @@ internal class GridType<TGridObject>
     private float cellSize;
     private Vector3 originPosition;
     private TGridObject[,] gridArray;
-    bool showDebug = true;
+    bool showDebug = false;
 
     public float CellSize { get {return cellSize; } }
 

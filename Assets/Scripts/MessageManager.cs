@@ -62,7 +62,7 @@ public class MessageManager : MonoBehaviour
         m.GetChild(0).GetComponent<Text>().text = message.message;
         m.DOScaleY(1, appearTime).OnComplete(() =>
         {
-            m.parent = MessagePan;
+            m.SetParent(MessagePan);
             MessageAdding();
             Destroy(m.gameObject, displayTime);
         });
